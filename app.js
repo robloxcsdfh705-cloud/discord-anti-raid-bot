@@ -3,7 +3,8 @@ const STORAGE_KEYS = {
   currentUser: 'discordAntiRaidCurrentUser',
   token: 'discordAntiRaidEncryptedToken',
   settings: 'discordAntiRaidSettings',
-  logs: 'discordAntiRaidLogs'
+  logs: 'discordAntiRaidLogs',
+  guildData: 'discordAntiRaidGuildData'
 };
 
 const DEFAULT_ADMIN = {
@@ -26,12 +27,142 @@ const DEFAULT_SETTINGS = {
   customMessage: '歡迎加入伺服器，請先閱讀規則並完成驗證！'
 };
 
+const DEFAULT_SERVER_DATA = {
+  guildName: '尚未綁定伺服器',
+  guildId: '',
+  avatarUrl: '',
+  channels: [
+    { id: 'general', name: 'general', type: 0 },
+    { id: 'welcome', name: 'welcome', type: 0 },
+    { id: 'rules', name: 'rules', type: 0 }
+  ],
+  roles: [
+    { id: 'admin', name: '管理員' },
+    { id: 'member', name: '成員' }
+  ],
+  source: 'local'
+};
+
 function safeJsonParse(value, fallback) {
   try {
     return value ? JSON.parse(value) : fallback;
   } catch (error) {
     return fallback;
   }
+}
+
+function getGuildData() {
+  return safeJsonParse(localStorage.getItem(STORAGE_KEYS.guildData), DEFAULT_SERVER_DATA);
+}
+
+function saveGuildData(guildData) {
+  localStorage.setItem(STORAGE_KEYS.guildData, JSON.stringify(guildData));
+}
+
+function buildFallbackGuildData() {
+  return {
+    guildName: '示例伺服器',
+    guildId: 'demo-server',
+    avatarUrl: '',
+    channels: [
+      { id: 'general', name: 'general', type: 0 },
+      { id: 'welcome', name: 'welcome', type: 0 },
+      { id: 'rules', name: 'rules', type: 0 },
+      { id: 'mod-logs', name: 'mod-logs', type: 0 }
+    ],
+    roles: [
+      { id: 'owner', name: '伺服器擁有者' },
+      { id: 'admin', name: '管理員' },
+      { id: 'member', name: '成員' }
+    ],
+    source: 'fallback'
+  };
+}
+
+async function fetchBotGuildData(token) {
+  const headers = {
+    Authorization: `Bot ${token}`,
+    'Content-Type': 'application/json'
+  };
+
+  try {
+    const guildsResponse = await fetch('https://discord.com/api/v10/users/@me/guilds', { headers });
+    if (!guildsResponse.ok) {
+      return buildFallbackGuildData();
+    }
+
+    const guilds = await guildsResponse.json();
+    if (!Array.isArray(guilds) || guilds.length === 0) {
+      return buildFallbackGuildData();
+    }
+
+    const selectedGuild = guilds[0];
+    const guildUrl = `https://discord.com/api/v10/guilds/${selectedGuild.id}`;
+    const channelsUrl = `https://discord.com/api/v10/guilds/${selectedGuild.id}/channels`;
+    const rolesUrl = `https://discord.com/api/v10/guilds/${selectedGuild.id}/roles`;
+
+    const [guildResponse, channelsResponse, rolesResponse] = await Promise.all([
+      fetch(guildUrl, { headers }),
+      fetch(channelsUrl, { headers }),
+      fetch(rolesUrl, { headers })
+    ]);
+
+    const guildInfo = guildResponse.ok ? await guildResponse.json() : selectedGuild;
+    const channels = channelsResponse.ok ? await channelsResponse.json() : [];
+    const roles = rolesResponse.ok ? await rolesResponse.json() : [];
+
+    return {
+      guildName: guildInfo.name || selectedGuild.name || 'Discord 伺服器',
+      guildId: guildInfo.id || selectedGuild.id || '',
+      avatarUrl: guildInfo.icon ? `https://cdn.discordapp.com/icons/${guildInfo.id}/${guildInfo.icon}.png` : '',
+      channels: (channels || []).filter((channel) => channel && (channel.type === 0 || channel.type === 5)).map((channel) => ({
+        id: channel.id,
+        name: channel.name,
+        type: channel.type
+      })),
+      roles: (roles || []).slice(0, 8).map((role) => ({
+        id: role.id,
+        name: role.name
+      })),
+      source: 'discord-api'
+    };
+  } catch (error) {
+    console.error('取得 Discord 伺服器資料失敗:', error);
+    return buildFallbackGuildData();
+  }
+}
+
+function renderServerData() {
+  const guildData = getGuildData();
+  const serverName = document.getElementById('serverName');
+  const serverId = document.getElementById('serverId');
+  const guildAvatar = document.getElementById('guildAvatar');
+  const guildRoleList = document.getElementById('guildRoleList');
+  const serverChannelSummary = document.getElementById('serverChannelSummary');
+  const channelSelect = document.getElementById('channelSelect');
+
+  if (!serverName || !serverId || !guildRoleList || !serverChannelSummary || !channelSelect) {
+    return;
+  }
+
+  serverName.textContent = guildData.guildName || DEFAULT_SERVER_DATA.guildName;
+  serverId.textContent = guildData.guildId ? `伺服器 ID：${guildData.guildId}` : '尚未綁定機器人';
+
+  if (guildData.avatarUrl) {
+    guildAvatar.src = guildData.avatarUrl;
+    guildAvatar.classList.remove('hidden');
+  } else {
+    guildAvatar.src = '';
+    guildAvatar.classList.add('hidden');
+  }
+
+  const roleList = Array.isArray(guildData.roles) && guildData.roles.length > 0 ? guildData.roles : DEFAULT_SERVER_DATA.roles;
+  guildRoleList.innerHTML = roleList.slice(0, 8).map((role) => `<span class="role-pill">${role.name}</span>`).join('');
+
+  const channelList = Array.isArray(guildData.channels) && guildData.channels.length > 0 ? guildData.channels : DEFAULT_SERVER_DATA.channels;
+  serverChannelSummary.innerHTML = channelList.slice(0, 6).map((channel) => `<span class="channel-chip">#${channel.name}</span>`).join('');
+
+  channelSelect.innerHTML = '<option value="">選擇頻道...</option>' + channelList.map((channel) => `<option value="#${channel.name}">#${channel.name}</option>`).join('');
 }
 
 function arrayBufferToBase64(buffer) {
@@ -399,7 +530,10 @@ async function bindDiscordToken() {
   const valid = await verifyDiscordToken(token);
   if (valid) {
     await saveDiscordToken(token);
-    alert('✓ Discord Bot Token 綁定成功，已加密保存於本機');
+    const guildData = await fetchBotGuildData(token);
+    saveGuildData(guildData);
+    renderServerData();
+    alert('✓ Discord Bot Token 綁定成功，已加密保存於本機，伺服器資料已載入');
     hideTokenBindingModal();
   } else {
     alert('✗ Token 無效，請確認是否為正確的 Discord Bot Token');
@@ -507,6 +641,14 @@ async function bootstrap() {
   await ensureDefaultAdmin();
 
   getSettingsFormValues();
+  renderServerData();
+
+  const token = await loadDiscordToken();
+  if (token) {
+    const guildData = await fetchBotGuildData(token);
+    saveGuildData(guildData);
+    renderServerData();
+  }
 
   const currentUser = getCurrentUser();
   if (currentUser) {
