@@ -29,7 +29,7 @@
             <div class="eyebrow">離線安全管理</div>
             <h1>完整的本地後台管理平台</h1>
             <p>
-              支援本地帳號管理、Discord Token 綁定、AI 回覆設定、防炸群規則、匯出匯入設定、離線可用。全部資料保存在瀏覽器本地，不依賴任何外部後端。
+              支援本地帳號管理、Discord Token 綁定、AI 回覆設定、防炸群規則、匯出匯入設定、離線可用。全部資料保存在瀏覽器本地，不依賴任何外部[...]
             </p>
             <div class="cta-row">
               <button class="primary-btn">啟動控制台</button>
@@ -101,6 +101,47 @@
               <button id="bindTokenBtn" class="primary-btn small-btn">綁定 Discord Token</button>
               <button id="openAdminManagerBtn" class="ghost-btn">帳號管理</button>
               <button id="signOutButton" class="ghost-btn danger-btn">登出</button>
+            </div>
+          </div>
+
+          <!-- 伺服器資訊卡（新增） -->
+          <div class="card server-info-card">
+            <div class="server-header">
+              <div class="server-avatar-wrapper">
+                <img id="guildAvatar" class="server-avatar hidden" alt="伺服器圖示" />
+                <div class="server-avatar-placeholder">🖥️</div>
+              </div>
+              <div class="server-details">
+                <h2 id="serverName">尚未綁定伺服器</h2>
+                <p id="serverId">尚未綁定機器人</p>
+              </div>
+            </div>
+            
+            <div class="server-stats-mini">
+              <div class="stat-item">
+                <span class="stat-label">角色</span>
+                <span class="stat-count" id="roleCount">--</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">頻道</span>
+                <span class="stat-count" id="channelCount">--</span>
+              </div>
+            </div>
+
+            <div class="server-section">
+              <h4>伺服器角色</h4>
+              <div id="guildRoleList" class="role-list">
+                <span class="role-pill">管理員</span>
+                <span class="role-pill">成員</span>
+              </div>
+            </div>
+
+            <div class="server-section">
+              <h4>可用頻道</h4>
+              <div id="serverChannelSummary" class="channel-list">
+                <span class="channel-chip">#general</span>
+                <span class="channel-chip">#welcome</span>
+              </div>
             </div>
           </div>
 
@@ -177,7 +218,7 @@
                 <option>隨機回覆</option>
               </select>
               <label style="margin-top: 12px; display: block;">關鍵字</label>
-              <textarea id="aiKeywords" rows="3" style="width: 100%; border-radius: 8px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text); padding: 8px; resize: vertical; margin-top: 6px;">歡迎, 規則, 驗證, 協助, 幫助</textarea>
+              <textarea id="aiKeywords" rows="3" style="width: 100%; border-radius: 8px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text); padding: 8px; resize: vertical;"></textarea>
               <button id="saveAISettings" class="primary-btn" style="width: 100%; margin-top: 12px;">保存 AI 設定</button>
             </div>
 
@@ -186,12 +227,9 @@
               <label>頻道選擇</label>
               <select id="channelSelect" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text); margin-top: 6px;">
                 <option value="">選擇頻道...</option>
-                <option value="#公告">#公告</option>
-                <option value="#歡迎">#歡迎</option>
-                <option value="#規則">#規則</option>
               </select>
               <label style="margin-top: 12px; display: block;">訊息內容</label>
-              <textarea id="customMessageText" rows="4" style="width: 100%; border-radius: 8px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text); padding: 8px; resize: vertical; margin-top: 6px;">歡迎加入伺服器，請先閱讀規則並完成驗證！</textarea>
+              <textarea id="customMessageText" rows="4" style="width: 100%; border-radius: 8px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text); padding: 8px; resize: vertical;"></textarea>
               <button id="sendCustomMessageBtn" class="primary-btn" style="width: 100%; margin-top: 12px;">發送自訂訊息</button>
             </div>
 
@@ -209,12 +247,12 @@
             <div class="card panel wide-panel">
               <h3>管理工具</h3>
               <div class="tool-buttons">
-                <button class="tool-btn">封鎖使用者</button>
-                <button class="tool-btn">禁言使用者</button>
-                <button class="tool-btn">踢出成員</button>
-                <button class="tool-btn">發送警告</button>
-                <button class="tool-btn">查看日誌</button>
-                <button class="tool-btn">設定黑名單</button>
+                <button class="tool-btn" data-action="封鎖使用者">封鎖使用者</button>
+                <button class="tool-btn" data-action="禁言使用者">禁言使用者</button>
+                <button class="tool-btn" data-action="踢出成員">踢出成員</button>
+                <button class="tool-btn" data-action="發送警告">發送警告</button>
+                <button class="tool-btn" data-action="查看日誌">查看日誌</button>
+                <button class="tool-btn" data-action="設定黑名單">設定黑名單</button>
               </div>
             </div>
           </div>
@@ -228,7 +266,7 @@
           <h3>綁定 Discord 機器人 Token</h3>
           <button id="closeModalBtn" class="close-btn">✕</button>
         </div>
-        <p>請輸入你的 Discord Bot Token，系統會驗證它是否可用，並加密保存於本機。</p>
+        <p>請輸入���的 Discord Bot Token，系統會驗證它是否可用，並加密保存於本機。</p>
         <input id="tokenInput" type="password" placeholder="輸入 Discord Bot Token" />
         <button class="primary-btn bind-token-btn">綁定 Token</button>
       </div>
@@ -264,6 +302,9 @@
           <ul>
             <li>所有帳號資料會保存到 localStorage。</li>
             <li>Discord Token 會用前端加密欄位保存。</li>
+            <li>綁定 Token 後會自動載入伺服器資料（頻道、角色）。</li>
+            <li>可直接從下拉選單選擇真實頻道發送訊息。</li>
+            <li>管理工具支援真實成員操作（禁言、踢出、封鎖、警告）。</li>
             <li>離線時仍可開啟控制台。</li>
             <li>如果裝置被拿走，資料可能被讀取，因此建議使用安全裝置。</li>
           </ul>
