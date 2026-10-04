@@ -1,24 +1,7 @@
-function parseJwt(token) {
-  const base64Url = token.split('.')[1];
-  if (!base64Url) return null;
-
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  const normalized = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
-
-  try {
-    const binary = atob(normalized);
-    const json = decodeURIComponent(
-      Array.from(binary)
-        .map((char) => `%${(`00${char.charCodeAt(0).toString(16)}`).slice(-2)}`)
-        .join('')
-    );
-
-    return JSON.parse(json);
-  } catch (error) {
-    console.error('JWT 解析失敗', error);
-    return null;
-  }
-}
+const DEFAULT_ADMIN = {
+  username: 'admin',
+  password: 'admin123'
+};
 
 const StorageManager = {
   saveUser(user) {
@@ -39,6 +22,56 @@ const StorageManager = {
     localStorage.removeItem('discordAntiRaidToken');
   }
 };
+
+function loginAdmin() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+
+  if (!username || !password) {
+    alert('請輸入帳號與密碼');
+    return;
+  }
+
+  if (username === DEFAULT_ADMIN.username && password === DEFAULT_ADMIN.password) {
+    const user = {
+      username,
+      email: 'admin@local'
+    };
+
+    StorageManager.saveUser(user);
+    showDashboard(user);
+    alert('登入成功');
+    return;
+  }
+
+  alert('帳號或密碼錯誤');
+}
+
+function showDashboard(user = null) {
+  const dashboardSection = document.getElementById('dashboardSection');
+  const loginSection = document.getElementById('loginSection');
+  const userName = document.getElementById('userName');
+  const userEmail = document.getElementById('userEmail');
+  const accountBadge = document.getElementById('accountBadge');
+
+  const currentUser = user || StorageManager.getUser();
+  if (!currentUser) return;
+
+  userName.textContent = currentUser.username || '管理員';
+  userEmail.textContent = currentUser.email || 'admin@local';
+  accountBadge.textContent = '已登入';
+
+  dashboardSection.classList.remove('hidden');
+  loginSection.classList.add('hidden');
+}
+
+function hideDashboard() {
+  const dashboardSection = document.getElementById('dashboardSection');
+  const loginSection = document.getElementById('loginSection');
+  dashboardSection.classList.add('hidden');
+  loginSection.classList.remove('hidden');
+  StorageManager.clearAll();
+}
 
 async function verifyDiscordToken(token) {
   try {
@@ -102,124 +135,6 @@ async function bindDiscordToken() {
   }
 }
 
-function showDashboard(user = null) {
-  const dashboardSection = document.getElementById('dashboardSection');
-  const loginSection = document.getElementById('loginSection');
-  const userName = document.getElementById('userName');
-  const userEmail = document.getElementById('userEmail');
-  const accountBadge = document.getElementById('accountBadge');
-  const userAvatar = document.getElementById('userAvatar');
-
-  const currentUser = user || StorageManager.getUser();
-  if (!currentUser) return;
-
-  userName.textContent = currentUser.name || 'Google 使用者';
-  userEmail.textContent = currentUser.email || 'No email provided';
-
-  const savedToken = StorageManager.getToken();
-  if (savedToken) {
-    accountBadge.textContent = 'Google + Discord 已連接';
-    accountBadge.style.background = 'rgba(52, 211, 153, 0.12)';
-    accountBadge.style.color = '#bbf7d0';
-  } else {
-    accountBadge.textContent = 'Google 已登入 / 等待 Token';
-    accountBadge.style.background = 'rgba(139, 92, 246, 0.12)';
-    accountBadge.style.color = '#ddd6fe';
-  }
-
-  if (currentUser.picture) {
-    userAvatar.src = currentUser.picture;
-    userAvatar.style.display = 'block';
-  }
-
-  dashboardSection.classList.remove('hidden');
-  loginSection.classList.add('hidden');
-}
-
-function hideDashboard() {
-  const dashboardSection = document.getElementById('dashboardSection');
-  const loginSection = document.getElementById('loginSection');
-  const userAvatar = document.getElementById('userAvatar');
-  const accountBadge = document.getElementById('accountBadge');
-
-  dashboardSection.classList.add('hidden');
-  loginSection.classList.remove('hidden');
-
-  if (userAvatar) {
-    userAvatar.src = '';
-    userAvatar.style.display = 'none';
-  }
-
-  if (accountBadge) accountBadge.textContent = '已登出';
-  StorageManager.clearAll();
-}
-
-window.handleGoogleSignIn = function (response) {
-  const payload = parseJwt(response.credential);
-
-  if (!payload) {
-    alert('Google 登入驗證失敗，請重試');
-    return;
-  }
-
-  const user = {
-    name: payload.name || payload.given_name || 'Google 使用者',
-    email: payload.email || 'unknown@gmail.com',
-    picture: payload.picture || ''
-  };
-
-  StorageManager.saveUser(user);
-  showDashboard(user);
-
-  const existingToken = StorageManager.getToken();
-  if (!existingToken) {
-    setTimeout(() => showTokenBindingModal(), 400);
-  }
-};
-
-function attachGoogleLoginButton() {
-  const button = document.getElementById('googleLoginButton');
-  if (!button) return;
-
-  button.addEventListener('click', () => {
-    const googleSignin = document.querySelector('.g_id_signin');
-    if (googleSignin) {
-      const googleButton = googleSignin.querySelector('div');
-      if (googleButton) googleButton.click();
-    }
-  });
-}
-
-function attachSignOut() {
-  const signOutButton = document.getElementById('signOutButton');
-  if (!signOutButton) return;
-
-  signOutButton.addEventListener('click', () => {
-    hideDashboard();
-    if (window.google && google.accounts && google.accounts.id) {
-      google.accounts.id.disableAutoSelect();
-      google.accounts.id.revoke('user@example.com', () => {});
-    }
-  });
-}
-
-function attachTokenBindingModal() {
-  const bindTokenBtn = document.getElementById('bindTokenBtn');
-  const closeModalBtn = document.getElementById('closeModalBtn');
-  const bindConfirmBtn = document.querySelector('.bind-token-btn');
-
-  if (bindTokenBtn) bindTokenBtn.addEventListener('click', showTokenBindingModal);
-  if (closeModalBtn) closeModalBtn.addEventListener('click', hideTokenBindingModal);
-  if (bindConfirmBtn) bindConfirmBtn.addEventListener('click', bindDiscordToken);
-
-  const tokenInput = document.getElementById('tokenInput');
-  if (tokenInput) {
-    tokenInput.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') bindDiscordToken();
-    });
-  }
-}
-
 function saveAISettings() {
   const enabled = document.getElementById('aiReplyToggle').checked;
   const frequency = document.getElementById('aiFrequency').value;
@@ -264,22 +179,35 @@ function setupManagementTools() {
   });
 }
 
+function attachEvents() {
+  document.getElementById('submitLogin').addEventListener('click', loginAdmin);
+  document.getElementById('loginButton').addEventListener('click', () => {
+    document.getElementById('loginSection').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  document.getElementById('signOutButton').addEventListener('click', () => {
+    hideDashboard();
+    alert('已登出');
+  });
+
+  document.getElementById('bindTokenBtn').addEventListener('click', showTokenBindingModal);
+  document.getElementById('closeModalBtn').addEventListener('click', hideTokenBindingModal);
+  document.querySelector('.bind-token-btn').addEventListener('click', bindDiscordToken);
+
+  document.getElementById('saveAISettings').addEventListener('click', saveAISettings);
+  document.getElementById('sendCustomMessageBtn').addEventListener('click', sendCustomMessage);
+  document.getElementById('tokenInput').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') bindDiscordToken();
+  });
+
+  setupManagementTools();
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   const savedUser = StorageManager.getUser();
   if (savedUser) {
     showDashboard(savedUser);
-  } else {
-    hideDashboard();
   }
 
-  attachGoogleLoginButton();
-  attachSignOut();
-  attachTokenBindingModal();
-  setupManagementTools();
-
-  const saveAIBtn = document.getElementById('saveAISettings');
-  if (saveAIBtn) saveAIBtn.addEventListener('click', saveAISettings);
-
-  const sendMsgBtn = document.getElementById('sendCustomMessageBtn');
-  if (sendMsgBtn) sendMsgBtn.addEventListener('click', sendCustomMessage);
+  attachEvents();
 });

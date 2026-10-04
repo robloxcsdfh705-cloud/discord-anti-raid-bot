@@ -4,15 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Discord 防炸群管理系統</title>
-    <meta
-      name="description"
-      content="Discord 防炸群機器人控制台，含 Google 登入、Discord Token 綁定、驗證系統、歡迎離開、AI 自動回覆、管理工具、自訂訊息發送"
-    />
+    <meta name="description" content="Discord 防炸群機器人控制台，含帳號密碼登入、Discord Token 綁定、驗證系統、歡迎離開、AI 自動回覆、管理工具、自訂訊息發送" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
     <div class="page-shell">
@@ -23,7 +19,7 @@
         </div>
         <div class="top-actions">
           <button class="ghost-btn">查看文件</button>
-          <button id="googleLoginButton" class="primary-btn">Google 登入</button>
+          <button id="loginButton" class="primary-btn">登入管理系統</button>
         </div>
       </header>
 
@@ -33,7 +29,7 @@
             <div class="eyebrow">保護伺服器社群安全</div>
             <h1>防炸群、驗證、歡迎離開、AI 回覆，一站式管理</h1>
             <p>
-              讓你的 Discord 伺服器具備高度安全性，透過 Google 管理員登入、Discord Bot Token 綁定、驗證系統、自訂歡迎訊息、AI 回覆與管理工具，讓群組維護更快、更安全。
+              讓你的 Discord 伺服器具備高度安全性，透過管理員帳號密碼登入、Discord Bot Token 綁定、驗證系統、自訂歡迎訊息、AI 回覆與管理工具，讓群組維護更快、更安全。
             </p>
             <div class="cta-row">
               <button class="primary-btn">啟動控制台</button>
@@ -69,43 +65,36 @@
         <section id="loginSection" class="login-section card">
           <div class="section-title-row">
             <h2>管理員登入</h2>
-            <span class="badge">需要 Google 帳號</span>
+            <span class="badge">帳號密碼登入</span>
           </div>
 
-          <div id="g_id_onload"
-               data-client_id="YOUR_GOOGLE_CLIENT_ID"
-               data-context="signin"
-               data-ux_mode="popup"
-               data-callback="handleGoogleSignIn"
-               data-auto_prompt="false">
-          </div>
+          <div class="login-form">
+            <label>帳號</label>
+            <input id="loginUsername" type="text" placeholder="請輸入帳號" />
 
-          <div class="g_id_signin"
-               data-type="standard"
-               data-size="large"
-               data-theme="outline"
-               data-text="sign_in_with"
-               data-shape="rectangular"
-               data-logo_alignment="left">
+            <label style="margin-top: 14px; display: block;">密碼</label>
+            <input id="loginPassword" type="password" placeholder="請輸入密碼" />
+
+            <button id="submitLogin" class="primary-btn" style="width: 100%; margin-top: 18px;">登入</button>
           </div>
 
           <p class="login-note">
-            只允許管理員使用 Google 帳號登入。部署前請將此處的 Client ID 替換為你的真實 Google OAuth Client ID。
+            預設管理員帳號：<strong>admin</strong>，預設密碼：<strong>admin123</strong>
           </p>
         </section>
 
         <section id="dashboardSection" class="dashboard hidden">
           <div class="section-title-row">
             <h2>伺服器控制台</h2>
-            <span id="accountBadge" class="badge">已登出</span>
+            <span id="accountBadge" class="badge">已登入</span>
           </div>
 
           <div class="user-card card">
             <div class="user-profile">
-              <img id="userAvatar" src="" alt="使用者頭像" />
+              <div class="avatar-circle">A</div>
               <div>
-                <h3 id="userName">訪客</h3>
-                <p id="userEmail">未登入</p>
+                <h3 id="userName">管理員</h3>
+                <p id="userEmail">admin@local</p>
               </div>
             </div>
             <div class="user-actions">
@@ -220,7 +209,7 @@
               <h3>管理工具</h3>
               <div class="tool-buttons">
                 <button class="tool-btn">封鎖使用者</button>
-                <button class="tool-btn">��言使用者</button>
+                <button class="tool-btn">禁言使用者</button>
                 <button class="tool-btn">踢出成員</button>
                 <button class="tool-btn">發送警告</button>
                 <button class="tool-btn">查看日誌</button>

@@ -100,15 +100,21 @@ img { max-width: 100%; display: block; }
 .badge {
   display: inline-flex; align-items: center; justify-content: center; padding: 7px 10px; border-radius: 999px; background: rgba(139, 92, 246, 0.12); color: #ddd6fe; border: 1px solid rgba(167, 139, 250, 0.25); font-size: 0.75rem; font-weight: 600;
 }
-.g_id_signin { margin-top: 16px; }
+.login-form {
+  display: grid;
+  gap: 8px;
+}
+.login-form input {
+  width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border); background: rgba(15, 23, 42, 0.75); color: var(--text);
+}
 .login-note { margin-top: 16px; color: var(--muted); line-height: 1.8; }
 .hidden { display: none !important; }
 .user-card {
   display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px;
 }
 .user-profile { display: flex; align-items: center; gap: 16px; }
-#userAvatar {
-  width: 54px; height: 54px; border-radius: 50%; object-fit: cover; display: none; border: 2px solid rgba(167, 139, 250, 0.8);
+.avatar-circle {
+  width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, var(--primary), var(--primary-2)); font-weight: 800; font-size: 1.3rem;
 }
 .user-profile h3 { margin: 0; font-size: 1.2rem; }
 .user-profile p { margin: 6px 0 0; color: var(--muted); }
