@@ -1,50 +1,165 @@
+const STORAGE_KEYS = {
+  admins: 'discordAntiRaidAdmins',
+  currentUser: 'discordAntiRaidCurrentUser',
+  token: 'discordAntiRaidEncryptedToken'
+};
+
 const DEFAULT_ADMIN = {
   username: 'admin',
   password: 'admin123'
 };
 
-const StorageManager = {
-  saveUser(user) {
-    localStorage.setItem('discordAntiRaidUser', JSON.stringify(user));
-  },
-  getUser() {
-    const raw = localStorage.getItem('discordAntiRaidUser');
-    return raw ? JSON.parse(raw) : null;
-  },
-  saveToken(token) {
-    localStorage.setItem('discordAntiRaidToken', token);
-  },
-  getToken() {
-    return localStorage.getItem('discordAntiRaidToken');
-  },
-  clearAll() {
-    localStorage.removeItem('discordAntiRaidUser');
-    localStorage.removeItem('discordAntiRaidToken');
+function safeJsonParse(value, fallback) {
+  try {
+    return value ? JSON.parse(value) : fallback;
+  } catch (error) {
+    return fallback;
   }
-};
+}
 
-function loginAdmin() {
-  const username = document.getElementById('loginUsername').value.trim();
-  const password = document.getElementById('loginPassword').value.trim();
+function arrayBufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary);
+}
 
-  if (!username || !password) {
-    alert('請輸入帳號與密碼');
-    return;
+function base64ToUint8Array(value) {
+  const binary = atob(value);
+  const result = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    result[i] = binary.charCodeAt(i);
   }
+  return result;
+}
 
-  if (username === DEFAULT_ADMIN.username && password === DEFAULT_ADMIN.password) {
-    const user = {
-      username,
-      email: 'admin@local'
-    };
+async function hashString(value) {
+  const bytes = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return arrayBufferToBase64(digest);
+}
 
-    StorageManager.saveUser(user);
-    showDashboard(user);
-    alert('登入成功');
-    return;
+async function hashPassword(password, salt) {
+  const seeded = `${salt}:${password}`;
+  return hashString(seeded);
+}
+
+function getAdmins() {
+  return safeJsonParse(localStorage.getItem(STORAGE_KEYS.admins), []);
+}
+
+function saveAdmins(admins) {
+  localStorage.setItem(STORAGE_KEYS.admins, JSON.stringify(admins));
+}
+
+function getCurrentUser() {
+  return safeJsonParse(localStorage.getItem(STORAGE_KEYS.currentUser), null);
+}
+
+function saveCurrentUser(user) {
+  localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(user));
+}
+
+function clearAuth() {
+  localStorage.removeItem(STORAGE_KEYS.currentUser);
+  localStorage.removeItem(STORAGE_KEYS.token);
+}
+
+async function ensureDefaultAdmin() {
+  const admins = getAdmins();
+  const exists = admins.some((admin) => admin.username === DEFAULT_ADMIN.username);
+
+  if (exists) return;
+
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const saltText = arrayBufferToBase64(salt.buffer);
+  const passwordHash = await hashPassword(DEFAULT_ADMIN.password, saltText);
+
+  admins.push({
+    id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+    username: DEFAULT_ADMIN.username,
+    salt: saltText,
+    passwordHash,
+    email: 'admin@local',
+    createdAt: new Date().toISOString(),
+    role: 'admin'
+  });
+
+  saveAdmins(admins);
+}
+
+async function verifyLogin(username, password) {
+  const admins = getAdmins();
+  const user = admins.find((item) => item.username === username);
+
+  if (!user) return false;
+
+  const hashed = await hashPassword(password, user.salt);
+  return hashed === user.passwordHash;
+}
+
+async function getUserByUsername(username) {
+  return getAdmins().find((admin) => admin.username === username) || null;
+}
+
+async function deriveKey(secret) {
+  const input = new TextEncoder().encode(secret);
+  const digest = await crypto.subtle.digest('SHA-256', input);
+  return crypto.subtle.importKey('raw', digest, 'AES-GCM', false, ['encrypt', 'decrypt']);
+}
+
+async function encryptText(value, secret) {
+  const key = await deriveKey(secret);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const data = new TextEncoder().encode(value);
+  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, data);
+  return `${arrayBufferToBase64(iv.buffer)}:${arrayBufferToBase64(encrypted)}`;
+}
+
+async function decryptText(value, secret) {
+  if (!value || !secret) return null;
+
+  try {
+    const [ivPart, encryptedPart] = value.split(':');
+    if (!ivPart || !encryptedPart) return null;
+
+    const key = await deriveKey(secret);
+    const iv = base64ToUint8Array(ivPart);
+    const encrypted = base64ToUint8Array(encryptedPart);
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, encrypted);
+    return new TextDecoder().decode(decrypted);
+  } catch (error) {
+    console.error('Decrypt failed', error);
+    return null;
   }
+}
 
-  alert('帳號或密碼錯誤');
+async function saveDiscordToken(token) {
+  const user = getCurrentUser();
+  if (!user) return;
+
+  const admin = await getUserByUsername(user.username);
+  if (!admin) return;
+
+  const tokenSecret = `${admin.username}:${admin.passwordHash}`;
+  const encrypted = await encryptText(token, tokenSecret);
+  localStorage.setItem(STORAGE_KEYS.token, encrypted);
+}
+
+async function loadDiscordToken() {
+  const user = getCurrentUser();
+  if (!user) return null;
+
+  const admin = await getUserByUsername(user.username);
+  if (!admin) return null;
+
+  const encrypted = localStorage.getItem(STORAGE_KEYS.token);
+  if (!encrypted) return null;
+
+  const tokenSecret = `${admin.username}:${admin.passwordHash}`;
+  return decryptText(encrypted, tokenSecret);
 }
 
 function showDashboard(user = null) {
@@ -54,7 +169,7 @@ function showDashboard(user = null) {
   const userEmail = document.getElementById('userEmail');
   const accountBadge = document.getElementById('accountBadge');
 
-  const currentUser = user || StorageManager.getUser();
+  const currentUser = user || getCurrentUser();
   if (!currentUser) return;
 
   userName.textContent = currentUser.username || '管理員';
@@ -70,7 +185,34 @@ function hideDashboard() {
   const loginSection = document.getElementById('loginSection');
   dashboardSection.classList.add('hidden');
   loginSection.classList.remove('hidden');
-  StorageManager.clearAll();
+  clearAuth();
+}
+
+async function loginAdmin() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+
+  if (!username || !password) {
+    alert('請輸入帳號與密碼');
+    return;
+  }
+
+  const valid = await verifyLogin(username, password);
+  if (!valid) {
+    alert('帳號或密碼錯誤');
+    return;
+  }
+
+  const admin = await getUserByUsername(username);
+  const user = {
+    username: admin.username,
+    email: admin.email || `${admin.username}@local`
+  };
+
+  saveCurrentUser(user);
+  showDashboard(user);
+  document.getElementById('loginPassword').value = '';
+  alert('登入成功');
 }
 
 async function verifyDiscordToken(token) {
@@ -121,10 +263,9 @@ async function bindDiscordToken() {
   const valid = await verifyDiscordToken(token);
 
   if (valid) {
-    StorageManager.saveToken(token);
-    alert('✓ Discord Bot Token 綁定成功');
+    await saveDiscordToken(token);
+    alert('✓ Discord Bot Token 綁定成功，並已加密保存於本機');
     hideTokenBindingModal();
-    showDashboard(StorageManager.getUser());
   } else {
     alert('✗ Token 無效，請確認是否為正確的 Discord Bot Token');
   }
@@ -159,8 +300,8 @@ function sendCustomMessage() {
     return;
   }
 
-  const token = StorageManager.getToken();
-  if (!token) {
+  const currentToken = localStorage.getItem(STORAGE_KEYS.token);
+  if (!currentToken) {
     alert('請先綁定 Discord Bot Token');
     return;
   }
@@ -203,11 +344,23 @@ function attachEvents() {
   setupManagementTools();
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  const savedUser = StorageManager.getUser();
-  if (savedUser) {
-    showDashboard(savedUser);
+async function bootstrap() {
+  await ensureDefaultAdmin();
+
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    showDashboard(currentUser);
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch((error) => {
+      console.warn('Service worker registration failed', error);
+    });
   }
 
   attachEvents();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  bootstrap();
 });

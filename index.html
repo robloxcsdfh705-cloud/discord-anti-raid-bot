@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Discord 防炸群管理系統</title>
-    <meta name="description" content="Discord 防炸群機器人控制台，含帳號密碼登入、Discord Token 綁定、驗證系統、歡迎離開、AI 自動回覆、管理工具、自訂訊息發送" />
+    <meta
+      name="description"
+      content="Discord 防炸群機器人控制台，離線可用的本地帳號登入、Discord Token 綁定、驗證系統、歡迎離開、AI 自動回覆、管理工具、自訂訊息發送"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -29,7 +32,7 @@
             <div class="eyebrow">保護伺服器社群安全</div>
             <h1>防炸群、驗證、歡迎離開、AI 回覆，一站式管理</h1>
             <p>
-              讓你的 Discord 伺服器具備高度安全性，透過管理員帳號密碼登入、Discord Bot Token 綁定、驗證系統、自訂歡迎訊息、AI 回覆與管理工具，讓群組維護更快、更安全。
+              這是純前端本地版管理面板，可離線使用。管理員帳號儲存在本機，Discord Bot Token 也會加密保存，不依賴後端或 Google OAuth。
             </p>
             <div class="cta-row">
               <button class="primary-btn">啟動控制台</button>
@@ -57,7 +60,7 @@
                 即時狀態
               </div>
               <div class="mini-status ok">已保護</div>
-              <small>防炸群、驗證、AI 回覆與管理工具已啟用</small>
+              <small>防炸群、驗證、AI 回覆與管理工具已啟用（本地模式）</small>
             </div>
           </div>
         </section>
@@ -65,7 +68,7 @@
         <section id="loginSection" class="login-section card">
           <div class="section-title-row">
             <h2>管理員登入</h2>
-            <span class="badge">帳號密碼登入</span>
+            <span class="badge">本地帳號登入</span>
           </div>
 
           <div class="login-form">
@@ -206,7 +209,7 @@
             </div>
 
             <div class="card panel wide-panel">
-              <h3>管理工具</h3>
+              <h3>管���工具</h3>
               <div class="tool-buttons">
                 <button class="tool-btn">封鎖使用者</button>
                 <button class="tool-btn">禁言使用者</button>
@@ -227,7 +230,7 @@
           <h3>綁定 Discord 機器人 Token</h3>
           <button id="closeModalBtn" class="close-btn">✕</button>
         </div>
-        <p>請輸入你的 Discord Bot Token，系統會驗證它是否可用。</p>
+        <p>請輸入你的 Discord Bot Token，系統會驗證它是否可用，並加密保存於本機。</p>
         <input id="tokenInput" type="password" placeholder="輸入 Discord Bot Token" />
         <button class="primary-btn bind-token-btn">綁定 Token</button>
       </div>
