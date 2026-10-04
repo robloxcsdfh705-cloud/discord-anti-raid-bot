@@ -3,11 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Discord 防炸群管理系統</title>
-    <meta
-      name="description"
-      content="Discord 防炸群機器人控制台，離線可用的本地帳號登入、Discord Token 綁定、驗證系統、歡迎離開、AI 自動回覆、管理工具、自訂訊息發送"
-    />
+    <title>Discord 防炸群本地管理後台</title>
+    <meta name="description" content="本地管理後台：管理員帳號、Discord Bot Token、AI 設定、防炸群設定、離線可用" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -18,10 +15,10 @@
       <header class="topbar container">
         <div class="brand">
           <div class="brand-mark">防</div>
-          <span>Discord 防炸群管理系統</span>
+          <span>Discord 防炸群本地管理後台</span>
         </div>
         <div class="top-actions">
-          <button class="ghost-btn">查看文件</button>
+          <button class="ghost-btn" id="showDocsBtn">查看文件</button>
           <button id="loginButton" class="primary-btn">登入管理系統</button>
         </div>
       </header>
@@ -29,22 +26,22 @@
       <main class="container main-layout">
         <section class="hero">
           <div class="hero-copy">
-            <div class="eyebrow">保護伺服器社群安全</div>
-            <h1>防炸群、驗證、歡迎離開、AI 回覆，一站式管理</h1>
+            <div class="eyebrow">離線安全管理</div>
+            <h1>完整的本地後台管理平台</h1>
             <p>
-              這是純前端本地版管理面板，可離線使用。管理員帳號儲存在本機，Discord Bot Token 也會加密保存，不依賴後端或 Google OAuth。
+              支援本地帳號管理、Discord Token 綁定、AI 回覆設定、防炸群規則、匯出匯入設定、離線可用。全部資料保存在瀏覽器本地，不依賴任何外部後端。
             </p>
             <div class="cta-row">
               <button class="primary-btn">啟動控制台</button>
               <button class="ghost-btn">設定說明</button>
             </div>
             <ul class="feature-list">
-              <li>防炸群偵測</li>
-              <li>新成員驗證</li>
-              <li>歡迎 / 離開</li>
+              <li>本地帳號管理</li>
+              <li>加密 token</li>
               <li>AI 自動回覆</li>
-              <li>管理工具</li>
-              <li>自訂公告訊息</li>
+              <li>防炸群設定</li>
+              <li>匯出匯入設定</li>
+              <li>離線可用</li>
             </ul>
           </div>
 
@@ -60,7 +57,7 @@
                 即時狀態
               </div>
               <div class="mini-status ok">已保護</div>
-              <small>防炸群、驗證、AI 回覆與管理工具已啟用（本地模式）</small>
+              <small>本地管理後台已啟用，資料保存在瀏覽器中</small>
             </div>
           </div>
         </section>
@@ -82,7 +79,7 @@
           </div>
 
           <p class="login-note">
-            預設管理員帳號：<strong>admin</strong>，預設密碼：<strong>admin123</strong>
+            預設管理員：<strong>admin</strong> / <strong>admin123</strong>
           </p>
         </section>
 
@@ -102,6 +99,7 @@
             </div>
             <div class="user-actions">
               <button id="bindTokenBtn" class="primary-btn small-btn">綁定 Discord Token</button>
+              <button id="openAdminManagerBtn" class="ghost-btn">帳號管理</button>
               <button id="signOutButton" class="ghost-btn danger-btn">登出</button>
             </div>
           </div>
@@ -109,19 +107,19 @@
           <div class="stats-grid">
             <div class="card stat-box">
               <span>成員數量</span>
-              <strong>12,540</strong>
+              <strong id="memberCount">12,540</strong>
             </div>
             <div class="card stat-box">
               <span>驗證率</span>
-              <strong>94%</strong>
+              <strong id="verificationRate">94%</strong>
             </div>
             <div class="card stat-box">
               <span>已封鎖</span>
-              <strong>26</strong>
+              <strong id="blockedCount">26</strong>
             </div>
             <div class="card stat-box">
               <span>警告數</span>
-              <strong>143</strong>
+              <strong id="warningCount">143</strong>
             </div>
           </div>
 
@@ -130,19 +128,19 @@
               <h3>防炸群設定</h3>
               <div class="toggle-row">
                 <label>大量加入保護</label>
-                <input type="checkbox" checked />
+                <input type="checkbox" class="setting-toggle" data-key="massJoinProtection" checked />
               </div>
               <div class="toggle-row">
                 <label>釣魚連結偵測</label>
-                <input type="checkbox" checked />
+                <input type="checkbox" class="setting-toggle" data-key="phishingDetection" checked />
               </div>
               <div class="toggle-row">
                 <label>需要驗證</label>
-                <input type="checkbox" checked />
+                <input type="checkbox" class="setting-toggle" data-key="verificationRequired" checked />
               </div>
               <div class="toggle-row">
                 <label>掃描廣告訊息</label>
-                <input type="checkbox" checked />
+                <input type="checkbox" class="setting-toggle" data-key="adScan" checked />
               </div>
             </div>
 
@@ -150,19 +148,19 @@
               <h3>歡迎與離開</h3>
               <div class="toggle-row">
                 <label>歡迎訊息</label>
-                <input type="checkbox" checked />
+                <input type="checkbox" class="setting-toggle" data-key="welcomeMessage" checked />
               </div>
               <div class="toggle-row">
                 <label>離開日誌</label>
-                <input type="checkbox" checked />
+                <input type="checkbox" class="setting-toggle" data-key="leaveLog" checked />
               </div>
               <div class="toggle-row">
                 <label>自動角色分配</label>
-                <input type="checkbox" checked />
+                <input type="checkbox" class="setting-toggle" data-key="autoRole" checked />
               </div>
               <div class="toggle-row">
                 <label>AI 自動回覆</label>
-                <input type="checkbox" checked />
+                <input type="checkbox" class="setting-toggle" data-key="aiAutoReply" checked />
               </div>
             </div>
 
@@ -209,7 +207,7 @@
             </div>
 
             <div class="card panel wide-panel">
-              <h3>管���工具</h3>
+              <h3>管理工具</h3>
               <div class="tool-buttons">
                 <button class="tool-btn">封鎖使用者</button>
                 <button class="tool-btn">禁言使用者</button>
@@ -233,6 +231,43 @@
         <p>請輸入你的 Discord Bot Token，系統會驗證它是否可用，並加密保存於本機。</p>
         <input id="tokenInput" type="password" placeholder="輸入 Discord Bot Token" />
         <button class="primary-btn bind-token-btn">綁定 Token</button>
+      </div>
+    </div>
+
+    <div id="adminManagerModal" class="modal hidden">
+      <div class="admin-modal card">
+        <div class="modal-header">
+          <h3>帳號管理</h3>
+          <button id="closeAdminManagerBtn" class="close-btn">✕</button>
+        </div>
+
+        <div class="admin-panel">
+          <div class="admin-form-row">
+            <input id="newAdminUsername" type="text" placeholder="新管理員帳號" />
+            <input id="newAdminPassword" type="password" placeholder="新管理員密碼" />
+            <button id="createAdminBtn" class="primary-btn small-btn">新增</button>
+          </div>
+
+          <div id="adminList" class="admin-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="docsModal" class="modal hidden">
+      <div class="docs-card card">
+        <div class="modal-header">
+          <h3>本地管理後台說明</h3>
+          <button id="closeDocsBtn" class="close-btn">✕</button>
+        </div>
+        <div class="docs-content">
+          <p>這個版本是純前端本地版，適合 GitHub Pages、離線使用、個人測試部署。</p>
+          <ul>
+            <li>所有帳號資料會保存到 localStorage。</li>
+            <li>Discord Token 會用前端加密欄位保存。</li>
+            <li>離線時仍可開啟控制台。</li>
+            <li>如果裝置被拿走，資料可能被讀取，因此建議使用安全裝置。</li>
+          </ul>
+        </div>
       </div>
     </div>
 

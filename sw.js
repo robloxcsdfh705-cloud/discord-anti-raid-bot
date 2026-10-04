@@ -1,4 +1,4 @@
-const CACHE_NAME = 'discord-anti-raid-v1';
+const CACHE_NAME = 'discord-anti-raid-v2';
 const FILES_TO_CACHE = ['./', './index.html', './styles.css', './app.js'];
 
 self.addEventListener('install', (event) => {
