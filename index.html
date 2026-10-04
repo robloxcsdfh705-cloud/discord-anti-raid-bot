@@ -3,17 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Discord 防炸群機器人</title>
+    <title>Discord 防炸群管理系統</title>
     <meta
       name="description"
-      content="Discord 防炸群機器人控制台 - 含驗證系統、防炸群、歡迎/離開日誌、管理系統、AI 自動回覆、自訂訊息發送"
+      content="Discord 防炸群機器人控制台，含 Google 登入、Discord Token 綁定、驗證系統、歡迎離開、AI 自動回覆、管理工具、自訂訊息發送"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
@@ -22,7 +19,7 @@
       <header class="topbar container">
         <div class="brand">
           <div class="brand-mark">防</div>
-          <span>Discord 防炸群機器人</span>
+          <span>Discord 防炸群管理系統</span>
         </div>
         <div class="top-actions">
           <button class="ghost-btn">查看文件</button>
@@ -33,22 +30,22 @@
       <main class="container main-layout">
         <section class="hero">
           <div class="hero-copy">
-            <div class="eyebrow">保護你的伺服器社群</div>
-            <h1>防炸群、驗證、自動歡迎、AI 回覆 - 一站式保護</h1>
+            <div class="eyebrow">保護伺服器社群安全</div>
+            <h1>防炸群、驗證、歡迎離開、AI 回覆，一站式管理</h1>
             <p>
-              使用自動防炸群、驗證系統、歡迎/離開日誌、管理工具、AI 自動回覆，以及自訂訊息發送功能，保護你的 Discord 伺服器免受詐騙和騷擾。
+              讓你的 Discord 伺服器具備高度安全性，透過 Google 管理員登入、Discord Bot Token 綁定、驗證系統、自訂歡迎訊息、AI 回覆與管理工具，讓群組維護更快、更安全。
             </p>
             <div class="cta-row">
               <button class="primary-btn">啟動控制台</button>
-              <button class="ghost-btn">閱讀設定指南</button>
+              <button class="ghost-btn">設定說明</button>
             </div>
             <ul class="feature-list">
               <li>防炸群偵測</li>
-              <li>驗證系統</li>
-              <li>歡迎/離開自動化</li>
-              <li>管理工具</li>
+              <li>新成員驗證</li>
+              <li>歡迎 / 離開</li>
               <li>AI 自動回覆</li>
-              <li>自訂訊息發送</li>
+              <li>管理工具</li>
+              <li>自訂公告訊息</li>
             </ul>
           </div>
 
@@ -64,7 +61,7 @@
                 即時狀態
               </div>
               <div class="mini-status ok">已保護</div>
-              <small>防炸群、驗證、AI 回覆已啟用</small>
+              <small>防炸群、驗證、AI 回覆與管理工具已啟用</small>
             </div>
           </div>
         </section>
@@ -93,7 +90,7 @@
           </div>
 
           <p class="login-note">
-            使用 Google 帳號登入以存取管理員控制台。部署前請將此處的客戶端 ID 替換為你的真實 OAuth 客戶端 ID。
+            只允許管理員使用 Google 帳號登入。部署前請將此處的 Client ID 替換為你的真實 Google OAuth Client ID。
           </p>
         </section>
 
@@ -111,7 +108,10 @@
                 <p id="userEmail">未登入</p>
               </div>
             </div>
-            <button id="signOutButton" class="ghost-btn danger-btn">登出</button>
+            <div class="user-actions">
+              <button id="bindTokenBtn" class="primary-btn small-btn">綁定 Discord Token</button>
+              <button id="signOutButton" class="ghost-btn danger-btn">登出</button>
+            </div>
           </div>
 
           <div class="stats-grid">
@@ -176,26 +176,33 @@
 
             <div class="card panel">
               <h3>AI 回覆設定</h3>
-              <label>啟用 AI 自動回覆</label>
-              <input type="checkbox" checked />
-              <label style="margin-top: 12px;">回覆頻率</label>
-              <select style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text); margin-top: 6px;">
+              <div class="toggle-row compact">
+                <label>啟用 AI 自動回覆</label>
+                <input id="aiReplyToggle" type="checkbox" checked />
+              </div>
+              <label style="margin-top: 12px; display: block;">回覆頻率</label>
+              <select id="aiFrequency" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text); margin-top: 6px;">
                 <option>所有訊息</option>
                 <option selected>特定關鍵字</option>
                 <option>隨機回覆</option>
               </select>
+              <label style="margin-top: 12px; display: block;">關鍵字</label>
+              <textarea id="aiKeywords" rows="3" style="width: 100%; border-radius: 8px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text); padding: 8px; resize: vertical; margin-top: 6px;">歡迎, 規則, 驗證, 協助, 幫助</textarea>
+              <button id="saveAISettings" class="primary-btn" style="width: 100%; margin-top: 12px;">保存 AI 設定</button>
             </div>
 
             <div class="card panel">
               <h3>自訂訊息發送</h3>
               <label>頻道選擇</label>
-              <select style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text); margin-top: 6px;">
-                <option>選擇頻道...</option>
-                <option>#公告</option>
-                <option>#歡迎</option>
-                <option>#規則</option>
+              <select id="channelSelect" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text); margin-top: 6px;">
+                <option value="">選擇頻道...</option>
+                <option value="#公告">#公告</option>
+                <option value="#歡迎">#歡迎</option>
+                <option value="#規則">#規則</option>
               </select>
-              <button class="primary-btn" style="width: 100%; margin-top: 12px;">發送自訂訊息</button>
+              <label style="margin-top: 12px; display: block;">訊息內容</label>
+              <textarea id="customMessageText" rows="4" style="width: 100%; border-radius: 8px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text); padding: 8px; resize: vertical; margin-top: 6px;">歡迎加入伺服器，請先閱讀規則並完成驗證！</textarea>
+              <button id="sendCustomMessageBtn" class="primary-btn" style="width: 100%; margin-top: 12px;">發送自訂訊息</button>
             </div>
 
             <div class="card panel wide-panel">
@@ -204,8 +211,8 @@
                 <li><span class="dot green"></span> 可疑連結已阻擋</li>
                 <li><span class="dot orange"></span> 使用者驗證失敗</li>
                 <li><span class="dot blue"></span> 歡迎訊息已發送</li>
-                <li><span class="dot purple"></span> 管理員警告已記錄</li>
-                <li><span class="dot green"></span> AI 已自動回覆訊息</li>
+                <li><span class="dot purple"></span> 管理員警告已紀錄</li>
+                <li><span class="dot green"></span> AI 自動回覆已觸發</li>
               </ul>
             </div>
 
@@ -213,7 +220,7 @@
               <h3>管理工具</h3>
               <div class="tool-buttons">
                 <button class="tool-btn">封鎖使用者</button>
-                <button class="tool-btn">禁言使用者</button>
+                <button class="tool-btn">��言使用者</button>
                 <button class="tool-btn">踢出成員</button>
                 <button class="tool-btn">發送警告</button>
                 <button class="tool-btn">查看日誌</button>
@@ -223,6 +230,18 @@
           </div>
         </section>
       </main>
+    </div>
+
+    <div id="tokenBindingModal" class="modal hidden">
+      <div class="modal-content card">
+        <div class="modal-header">
+          <h3>綁定 Discord 機器人 Token</h3>
+          <button id="closeModalBtn" class="close-btn">✕</button>
+        </div>
+        <p>請輸入你的 Discord Bot Token，系統會驗證它是否可用。</p>
+        <input id="tokenInput" type="password" placeholder="輸入 Discord Bot Token" />
+        <button class="primary-btn bind-token-btn">綁定 Token</button>
+      </div>
     </div>
 
     <script src="app.js"></script>
