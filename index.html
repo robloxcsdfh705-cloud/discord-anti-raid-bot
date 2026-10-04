@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Discord Anti-Raid Guard</title>
+    <title>Discord 防炸群機器人</title>
     <meta
       name="description"
-      content="Discord anti-raid bot dashboard with Google login, verification, welcome/leave system, moderation summary, and protection controls."
+      content="Discord 防炸群機器人控制台 - 含驗證系統、防炸群、歡迎/離開日誌、管理系統、AI 自動回覆、自訂訊息發送"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
@@ -21,57 +21,58 @@
     <div class="page-shell">
       <header class="topbar container">
         <div class="brand">
-          <div class="brand-mark">D</div>
-          <span>Discord Anti-Raid Guard</span>
+          <div class="brand-mark">防</div>
+          <span>Discord 防炸群機器人</span>
         </div>
         <div class="top-actions">
-          <button class="ghost-btn">View docs</button>
-          <button id="googleLoginButton" class="primary-btn">Google Login</button>
+          <button class="ghost-btn">查看文件</button>
+          <button id="googleLoginButton" class="primary-btn">Google 登入</button>
         </div>
       </header>
 
       <main class="container main-layout">
         <section class="hero">
           <div class="hero-copy">
-            <div class="eyebrow">Secure your Discord community</div>
-            <h1>Protect your server with anti-raid, verification, and moderation automation.</h1>
+            <div class="eyebrow">保護你的伺服器社群</div>
+            <h1>防炸群、驗證、自動歡迎、AI 回覆 - 一站式保護</h1>
             <p>
-              Power a safer Discord experience with automated welcome checks, welcome/leave logger,
-              suspicious link blocking, and real-time moderation visibility.
+              使用自動防炸群、驗證系統、歡迎/離開日誌、管理工具、AI 自動回覆，以及自訂訊息發送功能，保護你的 Discord 伺服器免受詐騙和騷擾。
             </p>
             <div class="cta-row">
-              <button class="primary-btn">Launch Dashboard</button>
-              <button class="ghost-btn">Read Setup Guide</button>
+              <button class="primary-btn">啟動控制台</button>
+              <button class="ghost-btn">閱讀設定指南</button>
             </div>
             <ul class="feature-list">
-              <li>Anti-raid detection</li>
-              <li>Verification gate</li>
-              <li>Welcome and leave automation</li>
-              <li>Moderation controls</li>
+              <li>防炸群偵測</li>
+              <li>驗證系統</li>
+              <li>歡迎/離開自動化</li>
+              <li>管理工具</li>
+              <li>AI 自動回覆</li>
+              <li>自訂訊息發送</li>
             </ul>
           </div>
 
           <div class="hero-panel">
             <div class="card stat-card">
-              <div class="stat-label">Threats blocked</div>
+              <div class="stat-label">已阻擋威脅</div>
               <div class="stat-number">1,284</div>
               <div class="sparkline">▁▂▃▄▅▆▇▆▅</div>
             </div>
             <div class="card mini-card">
               <div class="mini-header">
                 <span class="live-dot"></span>
-                Live status
+                即時狀態
               </div>
-              <div class="mini-status ok">Protected</div>
-              <small>Auto-ban, raid detection, and member checks active</small>
+              <div class="mini-status ok">已保護</div>
+              <small>防炸群、驗證、AI 回覆已啟用</small>
             </div>
           </div>
         </section>
 
         <section id="loginSection" class="login-section card">
           <div class="section-title-row">
-            <h2>Admin access</h2>
-            <span class="badge">Google required</span>
+            <h2>管理員登入</h2>
+            <span class="badge">需要 Google 帳號</span>
           </div>
 
           <div id="g_id_onload"
@@ -92,88 +93,132 @@
           </div>
 
           <p class="login-note">
-            Use a Google account to access the admin dashboard. Replace the placeholder client ID in
-            the code with your real OAuth client ID before deployment.
+            使用 Google 帳號登入以存取管理員控制台。部署前請將此處的客戶端 ID 替換為你的真實 OAuth 客戶端 ID。
           </p>
         </section>
 
         <section id="dashboardSection" class="dashboard hidden">
           <div class="section-title-row">
-            <h2>Server dashboard</h2>
-            <span id="accountBadge" class="badge">Signed out</span>
+            <h2>伺服器控制台</h2>
+            <span id="accountBadge" class="badge">已登出</span>
           </div>
 
           <div class="user-card card">
             <div class="user-profile">
-              <img id="userAvatar" src="" alt="User avatar" />
+              <img id="userAvatar" src="" alt="使用者頭像" />
               <div>
-                <h3 id="userName">Guest</h3>
-                <p id="userEmail">Not logged in</p>
+                <h3 id="userName">訪客</h3>
+                <p id="userEmail">未登入</p>
               </div>
             </div>
-            <button id="signOutButton" class="ghost-btn danger-btn">Sign out</button>
+            <button id="signOutButton" class="ghost-btn danger-btn">登出</button>
           </div>
 
           <div class="stats-grid">
             <div class="card stat-box">
-              <span>Members</span>
+              <span>成員數量</span>
               <strong>12,540</strong>
             </div>
             <div class="card stat-box">
-              <span>Verification</span>
+              <span>驗證率</span>
               <strong>94%</strong>
             </div>
             <div class="card stat-box">
-              <span>Bans</span>
+              <span>已封鎖</span>
               <strong>26</strong>
             </div>
             <div class="card stat-box">
-              <span>Warnings</span>
+              <span>警告數</span>
               <strong>143</strong>
             </div>
           </div>
 
           <div class="panel-grid">
             <div class="card panel">
-              <h3>Anti-raid settings</h3>
+              <h3>防炸群設定</h3>
               <div class="toggle-row">
-                <label>Mass joins protection</label>
+                <label>大量加入保護</label>
                 <input type="checkbox" checked />
               </div>
               <div class="toggle-row">
-                <label>Phishing link detection</label>
+                <label>釣魚連結偵測</label>
                 <input type="checkbox" checked />
               </div>
               <div class="toggle-row">
-                <label>Verification requirement</label>
+                <label>需要驗證</label>
+                <input type="checkbox" checked />
+              </div>
+              <div class="toggle-row">
+                <label>掃描廣告訊息</label>
                 <input type="checkbox" checked />
               </div>
             </div>
 
             <div class="card panel">
-              <h3>Welcome / leave</h3>
+              <h3>歡迎與離開</h3>
               <div class="toggle-row">
-                <label>Welcome DM</label>
+                <label>歡迎訊息</label>
                 <input type="checkbox" checked />
               </div>
               <div class="toggle-row">
-                <label>Leave logger</label>
+                <label>離開日誌</label>
                 <input type="checkbox" checked />
               </div>
               <div class="toggle-row">
-                <label>Auto-role assignment</label>
+                <label>自動角色分配</label>
+                <input type="checkbox" checked />
+              </div>
+              <div class="toggle-row">
+                <label>AI 自動回覆</label>
                 <input type="checkbox" checked />
               </div>
             </div>
 
+            <div class="card panel">
+              <h3>AI 回覆設定</h3>
+              <label>啟用 AI 自動回覆</label>
+              <input type="checkbox" checked />
+              <label style="margin-top: 12px;">回覆頻率</label>
+              <select style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text); margin-top: 6px;">
+                <option>所有訊息</option>
+                <option selected>特定關鍵字</option>
+                <option>隨機回覆</option>
+              </select>
+            </div>
+
+            <div class="card panel">
+              <h3>自訂訊息發送</h3>
+              <label>頻道選擇</label>
+              <select style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-soft); color: var(--text); margin-top: 6px;">
+                <option>選擇頻道...</option>
+                <option>#公告</option>
+                <option>#歡迎</option>
+                <option>#規則</option>
+              </select>
+              <button class="primary-btn" style="width: 100%; margin-top: 12px;">發送自訂訊息</button>
+            </div>
+
             <div class="card panel wide-panel">
-              <h3>Recent activity</h3>
+              <h3>最近活動</h3>
               <ul class="activity-list">
-                <li><span class="dot green"></span> Suspicious link blocked</li>
-                <li><span class="dot orange"></span> User failed verification</li>
-                <li><span class="dot blue"></span> Welcome message sent</li>
-                <li><span class="dot purple"></span> Moderator warning logged</li>
+                <li><span class="dot green"></span> 可疑連結已阻擋</li>
+                <li><span class="dot orange"></span> 使用者驗證失敗</li>
+                <li><span class="dot blue"></span> 歡迎訊息已發送</li>
+                <li><span class="dot purple"></span> 管理員警告已記錄</li>
+                <li><span class="dot green"></span> AI 已自動回覆訊息</li>
               </ul>
+            </div>
+
+            <div class="card panel wide-panel">
+              <h3>管理工具</h3>
+              <div class="tool-buttons">
+                <button class="tool-btn">封鎖使用者</button>
+                <button class="tool-btn">禁言使用者</button>
+                <button class="tool-btn">踢出成員</button>
+                <button class="tool-btn">發送警告</button>
+                <button class="tool-btn">查看日誌</button>
+                <button class="tool-btn">設定黑名單</button>
+              </div>
             </div>
           </div>
         </section>
