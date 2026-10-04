@@ -1,0 +1,12 @@
+{
+  "name": "discord-anti-raid-bot",
+  "version": "1.0.0",
+  "description": "Starter Discord anti-raid bot with verification and moderation features",
+  "main": "discord-bot.js",
+  "scripts": {
+    "start": "node discord-bot.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.15.3"
+  }
+}

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Discord Anti-Raid Guard</title>
+    <meta
+      name="description"
+      content="Discord anti-raid bot dashboard with Google login, verification, welcome/leave system, moderation summary, and protection controls."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar container">
+        <div class="brand">
+          <div class="brand-mark">D</div>
+          <span>Discord Anti-Raid Guard</span>
+        </div>
+        <div class="top-actions">
+          <button class="ghost-btn">View docs</button>
+          <button id="googleLoginButton" class="primary-btn">Google Login</button>
+        </div>
+      </header>
+
+      <main class="container main-layout">
+        <section class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow">Secure your Discord community</div>
+            <h1>Protect your server with anti-raid, verification, and moderation automation.</h1>
+            <p>
+              Power a safer Discord experience with automated welcome checks, welcome/leave logger,
+              suspicious link blocking, and real-time moderation visibility.
+            </p>
+            <div class="cta-row">
+              <button class="primary-btn">Launch Dashboard</button>
+              <button class="ghost-btn">Read Setup Guide</button>
+            </div>
+            <ul class="feature-list">
+              <li>Anti-raid detection</li>
+              <li>Verification gate</li>
+              <li>Welcome and leave automation</li>
+              <li>Moderation controls</li>
+            </ul>
+          </div>
+
+          <div class="hero-panel">
+            <div class="card stat-card">
+              <div class="stat-label">Threats blocked</div>
+              <div class="stat-number">1,284</div>
+              <div class="sparkline">▁▂▃▄▅▆▇▆▅</div>
+            </div>
+            <div class="card mini-card">
+              <div class="mini-header">
+                <span class="live-dot"></span>
+                Live status
+              </div>
+              <div class="mini-status ok">Protected</div>
+              <small>Auto-ban, raid detection, and member checks active</small>
+            </div>
+          </div>
+        </section>
+
+        <section id="loginSection" class="login-section card">
+          <div class="section-title-row">
+            <h2>Admin access</h2>
+            <span class="badge">Google required</span>
+          </div>
+
+          <div id="g_id_onload"
+               data-client_id="YOUR_GOOGLE_CLIENT_ID"
+               data-context="signin"
+               data-ux_mode="popup"
+               data-callback="handleGoogleSignIn"
+               data-auto_prompt="false">
+          </div>
+
+          <div class="g_id_signin"
+               data-type="standard"
+               data-size="large"
+               data-theme="outline"
+               data-text="sign_in_with"
+               data-shape="rectangular"
+               data-logo_alignment="left">
+          </div>
+
+          <p class="login-note">
+            Use a Google account to access the admin dashboard. Replace the placeholder client ID in
+            the code with your real OAuth client ID before deployment.
+          </p>
+        </section>
+
+        <section id="dashboardSection" class="dashboard hidden">
+          <div class="section-title-row">
+            <h2>Server dashboard</h2>
+            <span id="accountBadge" class="badge">Signed out</span>
+          </div>
+
+          <div class="user-card card">
+            <div class="user-profile">
+              <img id="userAvatar" src="" alt="User avatar" />
+              <div>
+                <h3 id="userName">Guest</h3>
+                <p id="userEmail">Not logged in</p>
+              </div>
+            </div>
+            <button id="signOutButton" class="ghost-btn danger-btn">Sign out</button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="card stat-box">
+              <span>Members</span>
+              <strong>12,540</strong>
+            </div>
+            <div class="card stat-box">
+              <span>Verification</span>
+              <strong>94%</strong>
+            </div>
+            <div class="card stat-box">
+              <span>Bans</span>
+              <strong>26</strong>
+            </div>
+            <div class="card stat-box">
+              <span>Warnings</span>
+              <strong>143</strong>
+            </div>
+          </div>
+
+          <div class="panel-grid">
+            <div class="card panel">
+              <h3>Anti-raid settings</h3>
+              <div class="toggle-row">
+                <label>Mass joins protection</label>
+                <input type="checkbox" checked />
+              </div>
+              <div class="toggle-row">
+                <label>Phishing link detection</label>
+                <input type="checkbox" checked />
+              </div>
+              <div class="toggle-row">
+                <label>Verification requirement</label>
+                <input type="checkbox" checked />
+              </div>
+            </div>
+
+            <div class="card panel">
+              <h3>Welcome / leave</h3>
+              <div class="toggle-row">
+                <label>Welcome DM</label>
+                <input type="checkbox" checked />
+              </div>
+              <div class="toggle-row">
+                <label>Leave logger</label>
+                <input type="checkbox" checked />
+              </div>
+              <div class="toggle-row">
+                <label>Auto-role assignment</label>
+                <input type="checkbox" checked />
+              </div>
+            </div>
+
+            <div class="card panel wide-panel">
+              <h3>Recent activity</h3>
+              <ul class="activity-list">
+                <li><span class="dot green"></span> Suspicious link blocked</li>
+                <li><span class="dot orange"></span> User failed verification</li>
+                <li><span class="dot blue"></span> Welcome message sent</li>
+                <li><span class="dot purple"></span> Moderator warning logged</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
